@@ -360,7 +360,7 @@
   // Fireflies drift upwards with a little sway. A finger on the screen gently draws
   // nearby ones in, and touching releases a few new ones from that spot.
   const MAX_FIREFLIES = 48;
-  const ATTRACT_RADIUS = 260;
+  const ATTRACT_RADIUS = 320;
   const rand = (min, max) => min + Math.random() * (max - min);
   let flies = [];
   let flyFrame = null;
@@ -383,19 +383,23 @@
     flies = flies.filter((f) => {
       f.age += dt;
       f.vx += Math.sin(now / 1200 + f.phase) * 8 * dt; // sway
+      let drawn = false;
       if (pointer) {
         const dx = pointer.x - f.x;
         const dy = pointer.y - f.y;
         const d = Math.hypot(dx, dy) || 1;
         if (d < ATTRACT_RADIUS) {
-          const pull = (1 - d / ATTRACT_RADIUS) * 140;
+          drawn = true;
+          const pull = 260 + (1 - d / ATTRACT_RADIUS) * 300;
           f.vx += (dx / d) * pull * dt;
           f.vy += (dy / d) * pull * dt;
         }
       }
-      // Ease back towards a slow upward drift.
-      f.vx -= f.vx * 0.8 * dt;
-      f.vy += (-f.speed - f.vy) * 0.8 * dt;
+      // Drawn fireflies get extra drag so they follow the finger without overshooting;
+      // the rest ease back towards a slow upward drift.
+      const drag = drawn ? 2.2 : 0.8;
+      f.vx -= f.vx * drag * dt;
+      f.vy += ((drawn ? 0 : -f.speed) - f.vy) * drag * dt;
       f.x += f.vx * dt;
       f.y += f.vy * dt;
       if (f.y < -20) {
@@ -447,11 +451,13 @@
     if (e.type === 'pointerdown') {
       pointer = { x: e.clientX, y: e.clientY };
       releaseFlies(pointer.x, pointer.y, 3);
+      vibrate(25);
       lastSpawn = performance.now();
     } else if (pointer) {
       pointer = { x: e.clientX, y: e.clientY };
       if (performance.now() - lastSpawn > 300) {
         releaseFlies(pointer.x, pointer.y, 1);
+        vibrate(8); // a faint tick for each new firefly
         lastSpawn = performance.now();
       }
     }
