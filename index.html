@@ -84,7 +84,9 @@
   }
 
   /* Counter */
-  .counter { text-align: center; padding: 8px 0; }
+  .counter { padding: 8px 0; display: flex; justify-content: center; }
+  /* Shrinks to the number's width, so the label starts just before the digits. */
+  .counter-inner { display: flex; flex-direction: column; align-items: flex-start; }
   .counter-value {
     display: flex;
     justify-content: center;
@@ -101,7 +103,11 @@
     letter-spacing: -0.02em;
   }
   .counter-value.compact .part .num { font-size: 48px; }
-  .part .unit { font-size: 16px; color: var(--muted); }
+  .counter-label {
+    margin: 0 0 2px -14px;
+    font-size: 14px;
+    color: var(--muted);
+  }  .part .unit { font-size: 16px; color: var(--muted); }
 
   /* Milestone */
   .milestone { display: flex; flex-direction: column; gap: 8px; }
@@ -275,7 +281,10 @@
       </div>
 
       <div class="counter">
-        <div id="counter-value" class="counter-value"></div>
+        <div class="counter-inner">
+          <p class="counter-label">sober for</p>
+          <div id="counter-value" class="counter-value"></div>
+        </div>
       </div>
 
       <div class="milestone">

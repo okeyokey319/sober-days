@@ -179,8 +179,7 @@
     });
 
     // Counter
-    const { parts, compact } = counterParts(start, today, format);
-    const value = $('counter-value');
+    const { parts, compact } = counterParts(start, today, format);    const value = $('counter-value');
     value.classList.toggle('compact', compact);
     value.replaceChildren(...parts.map(([num, unit]) => {
       const part = document.createElement('span');
