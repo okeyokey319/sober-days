@@ -310,7 +310,21 @@
   const COUNT_MS = 4000;
   const FIREFLIES = 16;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const vibrate = (pattern) => { if (navigator.vibrate) navigator.vibrate(pattern); };
+  // Chrome on Android only allows vibration after a finished tap, and a press that is
+  // still being held doesn't count yet. If it's refused, play it when the finger lifts.
+  let pendingVibe = null;
+  function vibrate(pattern, retryOnRelease) {
+    if (!navigator.vibrate) return;
+    let ok = false;
+    try { ok = navigator.vibrate(pattern); } catch (e) { /* not allowed */ }
+    if (!ok && retryOnRelease) pendingVibe = pattern;
+  }
+  document.addEventListener('pointerup', () => {
+    if (!pendingVibe) return;
+    const pattern = pendingVibe;
+    pendingVibe = null;
+    vibrate(pattern);
+  }, true);
   let holdTimer = null;
   let countFrame = null;
   let lastFact = -1;
@@ -383,7 +397,7 @@
         if (f.extra) { f.el.remove(); return false; }
         Object.assign(f, { x: rand(0, width), y: height + 20, vx: 0, vy: -f.speed, age: 0 });
       }
-      const fadeIn = Math.min(1, f.age / 1.2);
+      const fadeIn = Math.min(1, Math.max(0, f.age / 1.2));
       const nearTop = Math.min(1, Math.max(0, f.y / (height * 0.15)));
       const flicker = 0.55 + 0.45 * Math.sin(now / 600 + f.phase);
       f.el.style.transform = `translate(${f.x}px, ${f.y}px)`;
@@ -396,7 +410,11 @@
   function startFireflies() {
     if (reducedMotion) return;
     const { width, height } = $('fireflies').getBoundingClientRect();
-    for (let i = 0; i < FIREFLIES; i++) addFly(rand(0, width), height + rand(0, height * 0.7), 0, -20, false);
+    // Start them already on screen, in the lower half, fading in one after another.
+    for (let i = 0; i < FIREFLIES; i++) {
+      addFly(rand(0, width), rand(height * 0.45, height + 40), 0, -20, false);
+      flies[flies.length - 1].age = -rand(0, 1.5);
+    }
     flyTime = performance.now();
     flyFrame = requestAnimationFrame(stepFlies);
   }
@@ -455,7 +473,7 @@
   function openCelebrate() {
     const start = parseISODate(state.startDate);
     const days = daysBetween(start, startOfToday());
-    vibrate([30, 60, 50]);
+    vibrate([40, 70, 60], true);
     $('celebrate-unit').textContent = plural(days, 'day');
     $('celebrate-fact').classList.remove('shown');
     $('celebrate-fact').textContent = pickFact(celebrateFacts(start, days));
@@ -470,7 +488,7 @@
     countUp(days, () => {
       $('celebrate-num').classList.add('lit');
       later(700, () => $('celebrate-fact').classList.add('shown'));
-      later(1700, startFireflies);
+      later(900, startFireflies);
     });
   }
 
@@ -485,7 +503,7 @@
   function startHold() {
     if (holdTimer) return;
     $('celebrate-btn').classList.add('holding');
-    vibrate(10);
+    vibrate(20);
     holdTimer = setTimeout(() => {
       holdTimer = null;
       $('celebrate-btn').classList.remove('holding');
