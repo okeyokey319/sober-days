@@ -1,6 +1,6 @@
 // Offline support. Network first, so updates show up as soon as the phone is online;
 // the cached copy is used when there is no connection.
-const CACHE = 'sober-days-v2';
+const CACHE = 'sober-days-v3';
 const FILES = ['./', 'index.html', 'app.js', 'content.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -17,8 +17,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  // 'no-cache' makes the browser check with the server every time, so the page and its
+  // scripts never come from different versions (GitHub Pages lets browsers cache for 10 min).
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: 'no-cache' })
       .then((response) => {
         const copy = response.clone();
         caches.open(CACHE).then((cache) => cache.put(event.request, copy));
