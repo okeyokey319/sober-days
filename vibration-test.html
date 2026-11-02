@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vibration test</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; font: 15px/1.5 system-ui, sans-serif; background: #1b1b19; color: #e9e6e0; }
+  main { max-width: 440px; margin: 0 auto; padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; }
+  button { font: inherit; padding: 16px; border: 0; border-radius: 12px; background: #2c322b; color: inherit; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  pre { margin: 0; padding: 12px; background: #232320; border-radius: 12px; white-space: pre-wrap; font-size: 13px; min-height: 200px; }
+</style>
+</head>
+<body>
+<main>
+  <h1 style="margin:0;font-size:20px;font-weight:500">Vibration test</h1>
+  <button id="tap" type="button">1. Tap me once</button>
+  <button id="hold" type="button">2. Hold me for 2 seconds, then let go</button>
+  <button id="copy" type="button">Copy the log</button>
+  <pre id="log"></pre>
+</main>
+<script>
+  const log = (msg) => { document.getElementById('log').textContent += msg + '\n'; };
+  const act = () => navigator.userActivation
+    ? `active=${navigator.userActivation.isActive}, ever=${navigator.userActivation.hasBeenActive}` : 'activation: n/a';
+  const buzz = (label, ms) => {
+    let r;
+    try { r = navigator.vibrate(ms); } catch (e) { r = 'error ' + e.message; }
+    log(`${label}: vibrate -> ${r} (${act()})`);
+  };
+
+  log(`vibrate supported: ${'vibrate' in navigator}`);
+  log(`installed app: ${matchMedia('(display-mode: standalone)').matches}`);
+  log(`browser: ${navigator.userAgent.replace(/^.*?\) /, '')}`);
+  log('');
+
+  document.getElementById('tap').addEventListener('click', () => buzz('tap', 300));
+
+  const hold = document.getElementById('hold');
+  let timer = null;
+  hold.addEventListener('contextmenu', (e) => { e.preventDefault(); log('contextmenu (long press)'); });
+  hold.addEventListener('pointerdown', (e) => {
+    log(`pointerdown (${e.pointerType})`);
+    timer = setTimeout(() => buzz('during hold', 300), 1200);
+  });
+  ['pointerup', 'pointercancel', 'touchend', 'click'].forEach((type) => {
+    hold.addEventListener(type, () => { clearTimeout(timer); buzz(type, 150); });
+  });
+
+  document.getElementById('copy').addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('log').textContent).then(() => log('(copied)'));
+  });
+</script>
+</body>
+</html>

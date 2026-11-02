@@ -313,18 +313,23 @@
   // Chrome on Android only allows vibration after a finished tap, and a press that is
   // still being held doesn't count yet. If it's refused, play it when the finger lifts.
   let pendingVibe = null;
-  function vibrate(pattern, retryOnRelease) {
-    if (!navigator.vibrate) return;
-    let ok = false;
-    try { ok = navigator.vibrate(pattern); } catch (e) { /* not allowed */ }
-    if (!ok && retryOnRelease) pendingVibe = pattern;
+  let pendingUntil = 0;
+  function tryVibrate(pattern) {
+    if (!navigator.vibrate) return true;
+    try { return navigator.vibrate(pattern); } catch (e) { return false; }
   }
-  document.addEventListener('pointerup', () => {
+  function vibrate(pattern, retryOnRelease) {
+    if (!tryVibrate(pattern) && retryOnRelease) {
+      pendingVibe = pattern;
+      pendingUntil = Date.now() + 3000; // a buzz later than that would feel random
+    }
+  }
+  // After a long press Chrome may send pointercancel instead of pointerup, so also try
+  // touchend and click, whichever arrives with permission first.
+  ['pointerup', 'touchend', 'click'].forEach((type) => document.addEventListener(type, () => {
     if (!pendingVibe) return;
-    const pattern = pendingVibe;
-    pendingVibe = null;
-    vibrate(pattern);
-  }, true);
+    if (Date.now() > pendingUntil || tryVibrate(pendingVibe)) pendingVibe = null;
+  }, true));
   let holdTimer = null;
   let countFrame = null;
   let lastFact = -1;
