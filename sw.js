@@ -1,7 +1,8 @@
 // Offline support. Network first, so updates show up as soon as the phone is online;
 // the cached copy is used when there is no connection.
-const CACHE = 'sober-days-v3';
-const FILES = ['./', 'index.html', 'app.js', 'content.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'];
+const CACHE = 'sober-days-v4';
+const FILES = ['./', 'index.html', 'app.js', 'content.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png',
+  'fonts/IBMPlexSans.woff2', 'fonts/IBMPlexSerif-300.woff2', 'fonts/IBMPlexSerif-300i.woff2'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES)));
