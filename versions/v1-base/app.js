@@ -179,8 +179,7 @@
     });
 
     // Counter
-    const { parts, compact } = counterParts(start, today, format);
-    const value = $('counter-value');
+    const { parts, compact } = counterParts(start, today, format);    const value = $('counter-value');
     value.classList.toggle('compact', compact);
     value.replaceChildren(...parts.map(([num, unit]) => {
       const part = document.createElement('span');
@@ -194,7 +193,7 @@
       part.append(n, u);
       return part;
     }));
-    $('counter-note').textContent = `sober since ${formatDate(start, false)}`;
+    $('sober-since').textContent = `Sober since ${shortDate(start)}`;
 
     // Milestone
     const { prev, next, reachedToday } = milestoneInfo(start, days);
@@ -224,6 +223,87 @@
     render();
   });
 
+  // ---------- Hard moment: guided breathing ----------
+
+  // Longer exhale than inhale helps the body settle. 5 rounds of 12 s = 1 minute.
+  const BREATH_PHASES = [
+    { label: 'Breathe in', secs: 4, scale: 1 },
+    { label: 'Breathe out', secs: 8, scale: 0.5 },
+  ];
+  const BREATH_ROUNDS = 5;
+  let breathTimer = null;
+
+  function setCircle(scale, secs) {
+    const circle = $('breath-circle');
+    circle.style.transitionDuration = `${secs}s`;
+    circle.style.transform = `scale(${scale})`;
+  }
+
+  function stopBreathing(label) {
+    clearInterval(breathTimer);
+    breathTimer = null;
+    setCircle(0.5, 1);
+    $('breath-label').textContent = label;
+    $('breath-count').textContent = '';
+    $('breath-progress').textContent = '';
+    $('breath-toggle').textContent = label === 'Ready' ? 'Start breathing' : 'Once more';
+  }
+
+  function startBreathing() {
+    let round = 1;
+    let phase = 0;
+    let left = BREATH_PHASES[0].secs;
+
+    function enterPhase() {
+      const p = BREATH_PHASES[phase];
+      left = p.secs;
+      setCircle(p.scale, p.secs);
+      $('breath-label').textContent = p.label;
+      $('breath-count').textContent = left;
+      $('breath-progress').textContent = `${round} of ${BREATH_ROUNDS}`;
+    }
+
+    enterPhase();
+    $('breath-toggle').textContent = 'Stop';
+    breathTimer = setInterval(() => {
+      left--;
+      if (left > 0) {
+        $('breath-count').textContent = left;
+        return;
+      }
+      phase = (phase + 1) % BREATH_PHASES.length;
+      if (phase === 0) round++;
+      if (round > BREATH_ROUNDS) {
+        stopBreathing('Well done');
+        return;
+      }
+      enterPhase();
+    }, 1000);
+  }
+
+  function openHard() {
+    const days = daysBetween(parseISODate(state.startDate), startOfToday());
+    $('hard-days').textContent = `You have ${fmtNum(days)} sober ${plural(days, 'day')} behind you. Today is just one more.`;
+    stopBreathing('Ready');
+    $('home').hidden = true;
+    $('footer').hidden = true;
+    $('hard').hidden = false;
+    window.scrollTo(0, 0);
+  }
+
+  function closeHard() {
+    stopBreathing('Ready');
+    $('hard').hidden = true;
+    render();
+  }
+
+  $('open-hard').addEventListener('click', openHard);
+  $('close-hard').addEventListener('click', closeHard);
+  $('breath-toggle').addEventListener('click', () => {
+    if (breathTimer) stopBreathing('Ready');
+    else startBreathing();
+  });
+
   $('cancel-setup').addEventListener('click', render);
   $('change-date').addEventListener('click', showSetup);
 
@@ -242,4 +322,12 @@
   });
 
   render();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  // Ask the browser not to clear our data when the phone is low on space.
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(() => {});
+  }
 })();

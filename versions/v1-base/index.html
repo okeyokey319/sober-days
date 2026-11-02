@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#f5f3ef" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1b19" media="(prefers-color-scheme: dark)">
 <title>Sober Days</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>
   :root {
     color-scheme: light dark;
@@ -81,7 +84,9 @@
   }
 
   /* Counter */
-  .counter { text-align: center; padding: 8px 0; }
+  .counter { padding: 8px 0; display: flex; justify-content: center; }
+  /* Shrinks to the number's width, so the label starts just before the digits. */
+  .counter-inner { display: flex; flex-direction: column; align-items: flex-start; }
   .counter-value {
     display: flex;
     justify-content: center;
@@ -98,8 +103,11 @@
     letter-spacing: -0.02em;
   }
   .counter-value.compact .part .num { font-size: 48px; }
-  .part .unit { font-size: 16px; color: var(--muted); }
-  .counter-note { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+  .counter-label {
+    margin: 0 0 2px -14px;
+    font-size: 14px;
+    color: var(--muted);
+  }  .part .unit { font-size: 16px; color: var(--muted); }
 
   /* Milestone */
   .milestone { display: flex; flex-direction: column; gap: 8px; }
@@ -178,6 +186,77 @@
   }
   .primary:disabled { opacity: 0.5; cursor: default; }
   .setup .link { align-self: center; }
+
+  .secondary {
+    font: inherit;
+    font-size: 15px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  /* Hard moment */
+  .hard { display: flex; flex-direction: column; gap: 18px; }
+  .hard-top { display: flex; justify-content: space-between; align-items: center; }
+  .hard h1 {
+    margin: 8px 0 0;
+    font-family: Georgia, "Iowan Old Style", "Noto Serif", serif;
+    font-weight: 400;
+    font-size: 28px;
+  }
+  .hard-sub { margin: 0; color: var(--muted); }
+  .breath {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 16px auto 0;
+    display: grid;
+    place-items: center;
+  }
+  .breath::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+  .breath-circle {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    transform: scale(0.5);
+    transition-property: transform;
+    transition-timing-function: ease-in-out;
+  }
+  .breath-text {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  #breath-label { font-size: 18px; }
+  #breath-count { font-size: 14px; color: var(--muted); min-height: 21px; font-variant-numeric: tabular-nums; }
+  .breath-progress { margin: 0; text-align: center; font-size: 13px; color: var(--muted); min-height: 20px; }
+  .reminders {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .reminders li {
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 15px;
+  }
 </style>
 </head>
 <body>
@@ -202,8 +281,10 @@
       </div>
 
       <div class="counter">
-        <div id="counter-value" class="counter-value"></div>
-        <p id="counter-note" class="counter-note"></p>
+        <div class="counter-inner">
+          <p class="counter-label">sober for</p>
+          <div id="counter-value" class="counter-value"></div>
+        </div>
       </div>
 
       <div class="milestone">
@@ -224,11 +305,39 @@
         <p id="daily-text" class="daily-text"></p>
         <p id="daily-source" class="daily-source"></p>
       </article>
+
+      <button id="open-hard" class="secondary" type="button">Having a hard moment?</button>
     </div>
   </section>
 
+  <section id="hard" class="hard" hidden>
+    <div class="hard-top">
+      <p class="eyebrow">Hard moment</p>
+      <button id="close-hard" class="link" type="button">Close</button>
+    </div>
+    <h1>Let’s slow down.</h1>
+    <p class="hard-sub">Breathe with the circle. One minute is enough.</p>
+
+    <div class="breath">
+      <div id="breath-circle" class="breath-circle"></div>
+      <div class="breath-text">
+        <span id="breath-label">Ready</span>
+        <span id="breath-count"></span>
+      </div>
+    </div>
+    <p id="breath-progress" class="breath-progress"></p>
+    <button id="breath-toggle" class="primary" type="button">Start breathing</button>
+
+    <ul class="reminders">
+      <li>This feeling is a wave. It rises, peaks and passes — usually within twenty or thirty minutes.</li>
+      <li>Play the tape forward: not the first glass, but tomorrow morning.</li>
+      <li>HALT — are you hungry, angry, lonely or tired? Tend to that first.</li>
+      <li id="hard-days"></li>
+    </ul>
+  </section>
+
   <footer id="footer" hidden>
-    <span>Sober Days</span>
+    <span id="sober-since"></span>
     <button id="change-date" class="link" type="button">Change start date</button>
   </footer>
 </main>
