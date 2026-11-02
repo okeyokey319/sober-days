@@ -93,13 +93,10 @@
   .counter { padding: 8px 0; display: flex; justify-content: center; }
   /* Shrinks to the number's width, so the label starts just before the digits. */
   .counter-inner { display: flex; flex-direction: column; align-items: flex-start; }
-  .counter-value {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 6px 18px;
-  }
+  .counter-value { display: flex; flex-direction: column; gap: 2px; }
+  .counter-line { display: flex; align-items: baseline; gap: 18px; }
+  .counter-line + .counter-line { align-self: flex-end; }
+  .counter-line .lead { font-size: 16px; color: var(--muted); margin-right: -8px; }
   .part { display: inline-flex; align-items: baseline; gap: 6px; }
   .part .num {
     font-size: 72px;

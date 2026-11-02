@@ -97,21 +97,20 @@
 
   const shortDate = (date) => date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-  // Returns the pieces of the big counter for the chosen format.
-  function counterParts(start, today, format) {
-    const days = daysBetween(start, today);
-    switch (format) {
-      case 'ymd': {
-        const { years, months, days: d } = yearsMonthsDays(start, today);
-        const parts = [];
-        if (years) parts.push([years, plural(years, 'year')]);
-        if (years || months) parts.push([months, plural(months, 'month')]);
-        parts.push([d, plural(d, 'day')]);
-        return { parts, compact: parts.length > 1 };
-      }
-      default:
-        return { parts: [[days, plural(days, 'day')]], compact: false };
+  // Returns the big counter for the chosen format as lines of [number, unit] parts.
+  // Y · M · D puts years and months on the first line and "and N days" on the second.
+  function counterLines(start, today, format) {
+    if (format !== 'ymd') {
+      const days = daysBetween(start, today);
+      return { lines: [{ parts: [[days, plural(days, 'day')]] }], compact: false };
     }
+    const { years, months, days } = yearsMonthsDays(start, today);
+    const top = [];
+    if (years) top.push([years, plural(years, 'year')]);
+    if (years || months) top.push([months, plural(months, 'month')]);
+    const dayParts = [[days, plural(days, 'day')]];
+    if (!top.length) return { lines: [{ parts: dayParts }], compact: false };
+    return { lines: [{ parts: top }, { lead: 'and', parts: dayParts }], compact: true };
   }
 
   function monthsLabel(months) {
@@ -179,19 +178,31 @@
     });
 
     // Counter
-    const { parts, compact } = counterParts(start, today, format);    const value = $('counter-value');
+    const { lines, compact } = counterLines(start, today, format);
+    const value = $('counter-value');
     value.classList.toggle('compact', compact);
-    value.replaceChildren(...parts.map(([num, unit]) => {
-      const part = document.createElement('span');
-      part.className = 'part';
-      const n = document.createElement('span');
-      n.className = 'num';
-      n.textContent = fmtNum(num);
-      const u = document.createElement('span');
-      u.className = 'unit';
-      u.textContent = unit;
-      part.append(n, u);
-      return part;
+    value.replaceChildren(...lines.map(({ lead, parts }) => {
+      const line = document.createElement('div');
+      line.className = 'counter-line';
+      if (lead) {
+        const l = document.createElement('span');
+        l.className = 'lead';
+        l.textContent = lead;
+        line.append(l);
+      }
+      line.append(...parts.map(([num, unit]) => {
+        const part = document.createElement('span');
+        part.className = 'part';
+        const n = document.createElement('span');
+        n.className = 'num';
+        n.textContent = fmtNum(num);
+        const u = document.createElement('span');
+        u.className = 'unit';
+        u.textContent = unit;
+        part.append(n, u);
+        return part;
+      }));
+      return line;
     }));
     $('sober-since').textContent = `Sober since ${shortDate(start)}`;
 
