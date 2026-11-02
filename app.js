@@ -194,7 +194,7 @@
       part.append(n, u);
       return part;
     }));
-    $('counter-note').textContent = `sober since ${formatDate(start, false)}`;
+    $('sober-since').textContent = `Sober since ${shortDate(start)}`;
 
     // Milestone
     const { prev, next, reachedToday } = milestoneInfo(start, days);
