@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f3ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b1b19" media="(prefers-color-scheme: dark)">
+<title>Sober Days</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f3ef;
+    --surface: #fbfaf7;
+    --text: #2d2c2a;
+    --muted: #8b867e;
+    --line: #e4e0d8;
+    --accent: #7d8c7c;
+    --accent-soft: #e6eae3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1b19;
+      --surface: #232320;
+      --text: #e9e6e0;
+      --muted: #9a958c;
+      --line: #34332f;
+      --accent: #9fb09d;
+      --accent-soft: #2c322b;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  main {
+    max-width: 440px;
+    margin: 0 auto;
+    padding: max(32px, env(safe-area-inset-top)) 20px max(40px, env(safe-area-inset-bottom));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  [hidden] { display: none !important; }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* Format switcher */
+  .formats {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .formats button {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13px;
+    padding: 7px 0;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .formats button[aria-pressed="true"] {
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+
+  /* Counter */
+  .counter { text-align: center; padding: 8px 0; }
+  .counter-value {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+  .part { display: inline-flex; align-items: baseline; gap: 6px; }
+  .part .num {
+    font-size: 72px;
+    font-weight: 250;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .counter-value.compact .part .num { font-size: 48px; }
+  .part .unit { font-size: 16px; color: var(--muted); }
+  .counter-note { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+
+  /* Milestone */
+  .milestone { display: flex; flex-direction: column; gap: 8px; }
+  .milestone-row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+  .milestone-row span:last-child { text-align: right; }
+  .milestone-row .muted, .milestone-row.small { color: var(--muted); }
+  .milestone-row.small { font-size: 12px; }
+  .bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--accent); border-radius: 2px; }
+  .milestone-today { font-size: 14px; color: var(--accent); margin: 0; }
+
+  /* Daily card */
+  .daily {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .daily-text {
+    margin: 0;
+    font-family: Georgia, "Iowan Old Style", "Noto Serif", serif;
+    font-size: 21px;
+    line-height: 1.45;
+  }
+  .daily-source { margin: 0; font-size: 14px; color: var(--muted); }
+
+  footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .link {
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: inherit;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  /* Setup */
+  .setup { display: flex; flex-direction: column; gap: 20px; padding-top: 12vh; }
+  .setup h1 {
+    margin: 0;
+    font-family: Georgia, "Iowan Old Style", "Noto Serif", serif;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.3;
+  }
+  .setup p { margin: 0; color: var(--muted); }
+  .setup input[type="date"] {
+    font: inherit;
+    font-size: 17px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    width: 100%;
+  }
+  .primary {
+    font: inherit;
+    font-size: 16px;
+    border: 0;
+    border-radius: 12px;
+    padding: 13px;
+    background: var(--accent);
+    color: var(--bg);
+    cursor: pointer;
+  }
+  .primary:disabled { opacity: 0.5; cursor: default; }
+  .setup .link { align-self: center; }
+
+  .secondary {
+    font: inherit;
+    font-size: 15px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  /* Hard moment */
+  .hard { display: flex; flex-direction: column; gap: 18px; }
+  .hard-top { display: flex; justify-content: space-between; align-items: center; }
+  .hard h1 {
+    margin: 8px 0 0;
+    font-family: Georgia, "Iowan Old Style", "Noto Serif", serif;
+    font-weight: 400;
+    font-size: 28px;
+  }
+  .hard-sub { margin: 0; color: var(--muted); }
+  .breath {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 16px auto 0;
+    display: grid;
+    place-items: center;
+  }
+  .breath::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+  .breath-circle {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    transform: scale(0.5);
+    transition-property: transform;
+    transition-timing-function: ease-in-out;
+  }
+  .breath-text {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  #breath-label { font-size: 18px; }
+  #breath-count { font-size: 14px; color: var(--muted); min-height: 21px; font-variant-numeric: tabular-nums; }
+  .breath-progress { margin: 0; text-align: center; font-size: 13px; color: var(--muted); min-height: 20px; }
+  .reminders {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .reminders li {
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<main>
+  <section id="setup" class="setup" hidden>
+    <h1>When did your sober journey begin?</h1>
+    <p>Everything stays on this device.</p>
+    <form id="setup-form">
+      <input id="start-input" type="date" required>
+    </form>
+    <button class="primary" type="submit" form="setup-form">Start counting</button>
+    <button id="cancel-setup" class="link" type="button" hidden>Cancel</button>
+  </section>
+
+  <section id="home" hidden>
+    <div style="display:flex;flex-direction:column;gap:32px">
+      <p id="today-label" class="eyebrow"></p>
+
+      <div class="formats" role="group" aria-label="Counter format">
+        <button type="button" data-format="days">Days</button>
+        <button type="button" data-format="ymd">Y · M · D</button>
+      </div>
+
+      <div class="counter">
+        <div id="counter-value" class="counter-value"></div>
+        <p id="counter-note" class="counter-note"></p>
+      </div>
+
+      <div class="milestone">
+        <p id="milestone-today" class="milestone-today" hidden></p>
+        <div class="milestone-row">
+          <span id="milestone-prev" class="muted"></span>
+          <span id="milestone-next"></span>
+        </div>
+        <div class="bar"><div id="milestone-bar"></div></div>
+        <div class="milestone-row small">
+          <span id="milestone-prev-date"></span>
+          <span id="milestone-next-date"></span>
+        </div>
+      </div>
+
+      <article class="daily">
+        <p id="daily-type" class="eyebrow"></p>
+        <p id="daily-text" class="daily-text"></p>
+        <p id="daily-source" class="daily-source"></p>
+      </article>
+
+      <button id="open-hard" class="secondary" type="button">Having a hard moment?</button>
+    </div>
+  </section>
+
+  <section id="hard" class="hard" hidden>
+    <div class="hard-top">
+      <p class="eyebrow">Hard moment</p>
+      <button id="close-hard" class="link" type="button">Close</button>
+    </div>
+    <h1>Let’s slow down.</h1>
+    <p class="hard-sub">Breathe with the circle. One minute is enough.</p>
+
+    <div class="breath">
+      <div id="breath-circle" class="breath-circle"></div>
+      <div class="breath-text">
+        <span id="breath-label">Ready</span>
+        <span id="breath-count"></span>
+      </div>
+    </div>
+    <p id="breath-progress" class="breath-progress"></p>
+    <button id="breath-toggle" class="primary" type="button">Start breathing</button>
+
+    <ul class="reminders">
+      <li>This feeling is a wave. It rises, peaks and passes — usually within twenty or thirty minutes.</li>
+      <li>Play the tape forward: not the first glass, but tomorrow morning.</li>
+      <li>HALT — are you hungry, angry, lonely or tired? Tend to that first.</li>
+      <li id="hard-days"></li>
+    </ul>
+  </section>
+
+  <footer id="footer" hidden>
+    <span>Sober Days</span>
+    <button id="change-date" class="link" type="button">Change start date</button>
+  </footer>
+</main>
+
+<script src="content.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
