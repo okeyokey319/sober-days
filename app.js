@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  // Lets CSS hide things that only the script can reveal.
+  document.documentElement.classList.add('js');
+
   const STORAGE_KEY = 'sober-days:v1';
   // Milestones come in two kinds: calendar ones (shown as months/years, landing on the exact
   // anniversary date) and memorable day counts.
@@ -203,7 +206,7 @@
     $('milestone-prev-date').textContent = shortDate(addDays(start, prev.days));
     $('milestone-next').textContent = `Next: ${next.label}`;
     const left = next.days - days;
-    $('milestone-next-date').textContent = `in ${fmtNum(left)} ${plural(left, 'day')} · ${shortDate(addDays(start, next.days))}`;
+    $('milestone-next-date').textContent = `${shortDate(addDays(start, next.days))}, in ${fmtNum(left)} ${plural(left, 'day')}`;
     $('milestone-bar').style.width = `${Math.round(((days - prev.days) / (next.days - prev.days)) * 100)}%`;
 
     // Daily item

@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#f5f3ef" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1b19" media="(prefers-color-scheme: dark)">
 <title>Sober Days</title>
+<meta name="description" content="A quiet sobriety day counter with a quote, question or practice for each day.">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -17,6 +18,7 @@
 
   :root {
     color-scheme: light dark;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --serif: "IBM Plex Serif", Georgia, serif;
     --bg: #f5f3ef;
     --surface: #fbfaf7;
@@ -42,11 +44,15 @@
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   button:focus:not(:focus-visible) { outline: none; }
-  html, body { margin: 0; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* Pressed feedback; the celebrate button has its own fill. */
+  .primary:active, .secondary:active, .link:active, .formats button:active { opacity: 0.75; }
+  h1 { text-wrap: balance; }
+  html, body { margin: 0; overflow-x: clip; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--sans);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
@@ -62,9 +68,7 @@
   [hidden] { display: none !important; }
 
   .eyebrow {
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 14px;
     color: var(--muted);
     margin: 0;
   }
@@ -75,7 +79,7 @@
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 999px;
-    padding: 3px;
+    padding: 4px;
   }
   .formats button {
     flex: 1;
@@ -84,7 +88,7 @@
     color: var(--muted);
     font: inherit;
     font-size: 13px;
-    padding: 7px 0;
+    padding: 8px 0;
     border-radius: 999px;
     cursor: pointer;
   }
@@ -102,9 +106,9 @@
     justify-content: center;
     align-items: baseline;
     flex-wrap: wrap;
-    gap: 6px 18px;
+    gap: 8px 16px;
   }
-  .part { display: inline-flex; align-items: baseline; gap: 6px; }
+  .part { display: inline-flex; align-items: baseline; gap: 8px; }
   .part .num {
     font-size: 72px;
     font-weight: 200;
@@ -114,7 +118,7 @@
   }
   .counter-value.compact .part .num { font-size: 48px; }
   .counter-label {
-    margin: 0 0 2px -14px;
+    margin: 0 0 4px -16px;
     font-size: 14px;
     color: var(--muted);
   }  .part .unit { font-size: 16px; color: var(--muted); }
@@ -133,10 +137,10 @@
   .daily {
     background: var(--accent-soft);
     border-radius: 16px;
-    padding: 24px 22px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
   }
   .daily-text {
     margin: 0;
@@ -177,7 +181,7 @@
   .setup input[type="date"] {
     font: inherit;
     font-size: 17px;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border: 1px solid var(--field-edge);
     border-radius: 12px;
     background: var(--surface);
@@ -189,12 +193,12 @@
     font-size: 16px;
     border: 0;
     border-radius: 12px;
-    padding: 13px;
+    padding: 12px;
     background: var(--accent);
     color: var(--bg);
     cursor: pointer;
   }
-  .primary:disabled { opacity: 0.5; cursor: default; }
+  .primary:disabled { background: var(--line); color: var(--muted); cursor: default; }
   .setup .link { align-self: center; }
 
   .secondary {
@@ -278,11 +282,10 @@
     font-weight: 300;
     font-size: 20px;
     line-height: 1.5;
-    opacity: 0;
-    transform: translateY(6px);
     transition: opacity 0.8s ease, transform 0.8s ease;
   }
-  .celebrate-fact.shown { opacity: 1; transform: none; }
+  /* Hidden only once the script runs, so the fact is never lost without it. */
+  .js .celebrate-fact:not(.shown) { opacity: 0; transform: translateY(8px); }
   .ripples {
     position: absolute;
     left: 50%;
@@ -329,10 +332,13 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .fireflies, .ripples { display: none; }
+    .celebrate, .celebrate-num.lit { animation: none; }
+    .celebrate-num.lit { text-shadow: 0 0 14px var(--glow); }
+    .celebrate-fact { transition: none; }
   }
 
   /* Hard moment */
-  .hard { display: flex; flex-direction: column; gap: 18px; }
+  .hard { display: flex; flex-direction: column; gap: 16px; }
   .hard-top { display: flex; justify-content: space-between; align-items: center; }
   .hard h1 {
     margin: 8px 0 0;
@@ -384,7 +390,7 @@
     gap: 12px;
   }
   .reminders li {
-    padding: 14px 16px;
+    padding: 16px;
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 12px;
@@ -410,7 +416,7 @@
 
       <div class="formats" role="group" aria-label="Counter format">
         <button type="button" data-format="days">Days</button>
-        <button type="button" data-format="ymd">Y · M · D</button>
+        <button type="button" data-format="ymd">Years, months, days</button>
       </div>
 
       <div class="counter">
@@ -476,9 +482,9 @@
     <button id="breath-toggle" class="primary" type="button">Start breathing</button>
 
     <ul class="reminders">
-      <li>This feeling is a wave. It rises, peaks and passes — usually within twenty or thirty minutes.</li>
+      <li>This feeling is a wave. It rises, peaks and passes, usually within twenty or thirty minutes.</li>
       <li>Play the tape forward: not the first glass, but tomorrow morning.</li>
-      <li>HALT — are you hungry, angry, lonely or tired? Tend to that first.</li>
+      <li>HALT: are you hungry, angry, lonely or tired? Tend to that first.</li>
       <li id="hard-days"></li>
     </ul>
   </section>
