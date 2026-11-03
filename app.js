@@ -206,7 +206,7 @@
     $('milestone-prev-date').textContent = shortDate(addDays(start, prev.days));
     $('milestone-next').textContent = `Next: ${next.label}`;
     const left = next.days - days;
-    $('milestone-next-date').textContent = `${shortDate(addDays(start, next.days))}, in ${fmtNum(left)} ${plural(left, 'day')}`;
+    $('milestone-next-date').textContent = `in ${fmtNum(left)} ${plural(left, 'day')} · ${shortDate(addDays(start, next.days))}`;
     $('milestone-bar').style.width = `${Math.round(((days - prev.days) / (next.days - prev.days)) * 100)}%`;
 
     // Daily item

@@ -68,7 +68,9 @@
   [hidden] { display: none !important; }
 
   .eyebrow {
-    font-size: 14px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     color: var(--muted);
     margin: 0;
   }
@@ -416,7 +418,7 @@
 
       <div class="formats" role="group" aria-label="Counter format">
         <button type="button" data-format="days">Days</button>
-        <button type="button" data-format="ymd">Years, months, days</button>
+        <button type="button" data-format="ymd">Y · M · D</button>
       </div>
 
       <div class="counter">
@@ -482,9 +484,9 @@
     <button id="breath-toggle" class="primary" type="button">Start breathing</button>
 
     <ul class="reminders">
-      <li>This feeling is a wave. It rises, peaks and passes, usually within twenty or thirty minutes.</li>
+      <li>This feeling is a wave. It rises, peaks and passes — usually within twenty or thirty minutes.</li>
       <li>Play the tape forward: not the first glass, but tomorrow morning.</li>
-      <li>HALT: are you hungry, angry, lonely or tired? Tend to that first.</li>
+      <li>HALT — are you hungry, angry, lonely or tired? Tend to that first.</li>
       <li id="hard-days"></li>
     </ul>
   </section>
