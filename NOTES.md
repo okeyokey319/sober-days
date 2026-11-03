@@ -7,7 +7,7 @@ Personal app, English UI, calm neutral style. Browser prototype now; the plan is
 - Milestones: calendar months/years (1, 3, 6, 9 months, then 1, 1.5, 2 … years) plus memorable day counts (111, 222, 444, 555, 666, 777 …). Bar shows previous → next milestone, both ends labelled.
 - Hard moment: 1 minute guided breathing, 4 s in / 8 s out, 5 rounds, plus short reminders.
 - Base version saved in `versions/v1-base`.
-- Launch screen and icon: near-black (#111110) with a thin sage ring. The app itself follows the phone's light/dark theme.
+- Launch screen and icon: near-black (#111110) with a sage dot and soft rings spreading from it (`icons/icon-dot-*.png`). The app itself follows the phone's light/dark theme.
 - Live at https://okeyokey319.github.io/sober-days/ (GitHub Pages from `main`), installed on the phone as a PWA.
 
 ## Backups — postponed until the Android app
