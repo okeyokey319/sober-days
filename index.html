@@ -21,9 +21,11 @@
     --bg: #f5f3ef;
     --surface: #fbfaf7;
     --text: #2d2c2a;
-    --muted: #8b867e;
+    /* muted and accent are dark enough for small text (4.5:1) on the page and the daily card. */
+    --muted: #6b6761;
     --line: #e4e0d8;
-    --accent: #7d8c7c;
+    --field-edge: #8b867e; /* input borders need 3:1, --line is too faint */
+    --accent: #657164;
     --accent-soft: #e6eae3;
   }
   @media (prefers-color-scheme: dark) {
@@ -31,8 +33,9 @@
       --bg: #1b1b19;
       --surface: #232320;
       --text: #e9e6e0;
-      --muted: #9a958c;
+      --muted: #9e9991;
       --line: #34332f;
+      --field-edge: #77736c;
       --accent: #9fb09d;
       --accent-soft: #2c322b;
     }
@@ -175,7 +178,7 @@
     font: inherit;
     font-size: 17px;
     padding: 12px 14px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--field-edge);
     border-radius: 12px;
     background: var(--surface);
     color: var(--text);
